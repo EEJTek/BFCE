@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>基于浏览器指纹的 AES-GCM 加解密工具</title>
+    <title>JTek - Browser-Fingerprint Crypto Engine</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -42,42 +42,53 @@
 
     <!-- 顶部 Header -->
     <header class="max-w-6xl w-full mx-auto mb-6 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-800 pb-4">
-        <div class="flex items-center gap-3">
-            <div class="p-3 bg-cyan-500/10 rounded-xl border border-cyan-500/30 text-cyan-400">
-                <i class="fa-solid fa-fingerprint text-2xl"></i>
+        <div class="flex items-center gap-4">
+            <!-- 嵌入用户提供的 Logo -->
+            <div class="p-1 bg-white/10 rounded-xl border border-white/20 shadow-md">
+                <img id="app-logo" src="./jtek.jpg" alt="JTek Logo" class="h-10 w-auto rounded-lg object-contain">
             </div>
             <div>
                 <h1 class="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                     Browser-Fingerprint Crypto Engine
                 </h1>
-                <p class="text-xs text-slate-400">基于设备指纹绑定 + PBKDF2 + AES-256-GCM 零依赖纯前端加密系统</p>
+                <p id="i18n-sub-header" class="text-xs text-slate-400">基于设备指纹绑定 + PBKDF2 + AES-256-GCM 零依赖纯前端加密系统</p>
             </div>
         </div>
-        <div class="flex items-center gap-2 text-xs bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Web Crypto API: <strong id="crypto-status" class="text-emerald-400">就绪</strong></span>
+        
+        <div class="flex items-center gap-3">
+            <!-- 语言切换按钮 -->
+            <button id="btn-lang-toggle" class="flex items-center gap-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+                <i class="fa-solid fa-globe text-cyan-400"></i>
+                <span id="lang-text">English</span>
+            </button>
+
+            <!-- 加密状态 -->
+            <div class="flex items-center gap-2 text-xs bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Web Crypto API: <strong id="crypto-status" class="text-emerald-400">就绪</strong></span>
+            </div>
         </div>
     </header>
 
     <!-- 主体内容 -->
     <main class="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
         
-        <!-- 左侧：浏览器指纹采集展示面板 (4/12) -->
+        <!-- 左侧：浏览器指纹采集展示面板 (5/12) -->
         <section class="lg:col-span-5 glass-panel rounded-2xl p-5 flex flex-col justify-between">
             <div>
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-base font-semibold text-slate-200 flex items-center gap-2">
+                    <h2 id="i18n-fp-title" class="text-base font-semibold text-slate-200 flex items-center gap-2">
                         <i class="fa-solid fa-microchip text-cyan-400"></i> 设备指纹特征
                     </h2>
-                    <button id="btn-refresh-fp" class="text-xs px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded transition text-slate-300">
-                        <i class="fa-solid fa-rotate-right mr-1"></i>重新采集
+                    <button id="btn-refresh-fp" class="text-xs px-2.5 py-1 bg-slate-700 hover:bg-slate-600 rounded transition text-slate-300">
+                        <i class="fa-solid fa-rotate-right mr-1"></i><span id="i18n-btn-refresh">重新采集</span>
                     </button>
                 </div>
 
                 <!-- 综合指纹 Hash 显示框 -->
                 <div class="mb-4 p-3 bg-slate-900/80 rounded-xl border border-cyan-500/20">
                     <div class="text-xs text-slate-400 mb-1 flex justify-between">
-                        <span>设备绑定摘要 (Combined SHA-256)</span>
+                        <span id="i18n-fp-digest-label">设备绑定摘要 (Combined SHA-256)</span>
                         <span id="fp-status-badge" class="text-cyan-400">生成中...</span>
                     </div>
                     <div id="fp-hash-display" class="font-mono text-xs text-cyan-300 break-all bg-slate-950 p-2 rounded border border-slate-800">
@@ -90,7 +101,7 @@
                     <!-- Canvas 指纹 -->
                     <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
                         <div class="flex justify-between text-slate-300 font-medium mb-1">
-                            <span><i class="fa-solid fa-palette text-cyan-400 mr-1.5"></i>Canvas 指纹 Hash</span>
+                            <span><i class="fa-solid fa-palette text-cyan-400 mr-1.5"></i><span id="i18n-fp-canvas-label">Canvas 指纹 Hash</span></span>
                         </div>
                         <div id="fp-canvas" class="font-mono text-slate-400 truncate">计算中...</div>
                     </div>
@@ -98,26 +109,26 @@
                     <!-- Audio 指纹 -->
                     <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
                         <div class="flex justify-between text-slate-300 font-medium mb-1">
-                            <span><i class="fa-solid fa-waveform text-cyan-400 mr-1.5"></i>Audio Context 指纹</span>
+                            <span><i class="fa-solid fa-waveform text-cyan-400 mr-1.5"></i><span id="i18n-fp-audio-label">Audio Context 指纹</span></span>
                         </div>
                         <div id="fp-audio" class="font-mono text-slate-400 truncate">计算中...</div>
                     </div>
 
                     <!-- 硬件与环境特征 -->
                     <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 space-y-1 text-slate-300">
-                        <div class="font-medium text-slate-200 mb-2"><i class="fa-solid fa-sliders text-cyan-400 mr-1.5"></i>硬件/环境特征</div>
+                        <div class="font-medium text-slate-200 mb-2"><i class="fa-solid fa-sliders text-cyan-400 mr-1.5"></i><span id="i18n-fp-hw-label">硬件/环境特征</span></div>
                         <div class="grid grid-cols-2 gap-1 text-[11px] text-slate-400">
-                            <div>屏幕分辨率: <span id="fp-screen" class="text-slate-200">--</span></div>
-                            <div>CPU 核心数: <span id="fp-cores" class="text-slate-200">--</span></div>
-                            <div>设备内存: <span id="fp-memory" class="text-slate-200">--</span></div>
-                            <div>系统时区: <span id="fp-timezone" class="text-slate-200">--</span></div>
+                            <div><span id="i18n-hw-screen">屏幕分辨率</span>: <span id="fp-screen" class="text-slate-200">--</span></div>
+                            <div><span id="i18n-hw-cores">CPU 核心数</span>: <span id="fp-cores" class="text-slate-200">--</span></div>
+                            <div><span id="i18n-hw-memory">设备内存</span>: <span id="fp-memory" class="text-slate-200">--</span></div>
+                            <div><span id="i18n-hw-timezone">系统时区</span>: <span id="fp-timezone" class="text-slate-200">--</span></div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- 解释说明提示 -->
-            <div class="mt-4 p-3 bg-blue-950/30 border border-blue-800/40 rounded-xl text-xs text-slate-400">
+            <div id="i18n-fp-notice" class="mt-4 p-3 bg-blue-950/30 border border-blue-800/40 rounded-xl text-xs text-slate-400">
                 <i class="fa-solid fa-circle-info text-blue-400 mr-1"></i>
                 指纹提取通过 Canvas 图形渲染差异、音频上下文压缩失真算法及硬件参数联合生成固定密钥种子。
             </div>
@@ -130,35 +141,35 @@
             <div class="glass-panel rounded-2xl p-5">
                 <div class="flex border-b border-slate-700 mb-5 gap-4">
                     <button id="tab-encrypt-btn" class="pb-2 text-sm font-semibold border-b-2 border-cyan-400 text-cyan-400 transition">
-                        <i class="fa-solid fa-lock mr-1.5"></i>文本数据加密
+                        <i class="fa-solid fa-lock mr-1.5"></i><span id="i18n-tab-encrypt">文本数据加密</span>
                     </button>
                     <button id="tab-decrypt-btn" class="pb-2 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
-                        <i class="fa-solid fa-key mr-1.5"></i>设备校验解密
+                        <i class="fa-solid fa-key mr-1.5"></i><span id="i18n-tab-decrypt">设备校验解密</span>
                     </button>
                 </div>
 
                 <!-- 加密面板 -->
                 <div id="panel-encrypt" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">明文内容 (Plaintext)</label>
+                        <label id="i18n-enc-label-plaintext" class="block text-xs font-medium text-slate-300 mb-1">明文内容 (Plaintext)</label>
                         <textarea id="encrypt-input" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-500 transition placeholder-slate-600" placeholder="请输入需要加密保存的机密文本或数据..."></textarea>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">附加密钥密码 (额外口令/Salt, 可选)</label>
+                        <label id="i18n-enc-label-passphrase" class="block text-xs font-medium text-slate-300 mb-1">附加密钥密码 (额外口令/Salt, 可选)</label>
                         <input type="password" id="encrypt-passphrase" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500 transition placeholder-slate-600" placeholder="例如：额外混淆口令（留空则完全基于设备指纹）">
                     </div>
 
                     <button id="btn-encrypt-action" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20">
-                        <i class="fa-solid fa-shield-halved"></i> 使用当前设备指纹加密
+                        <i class="fa-solid fa-shield-halved"></i> <span id="i18n-btn-encrypt">使用当前设备指纹加密</span>
                     </button>
 
                     <!-- 加密输出 -->
                     <div id="encrypt-result-box" class="hidden mt-4 pt-4 border-t border-slate-800 space-y-2">
                         <div class="flex justify-between items-center text-xs">
-                            <span class="text-slate-300 font-medium">加密密文包 (Base64 JSON):</span>
+                            <span id="i18n-enc-cipher-label" class="text-slate-300 font-medium">加密密文包 (Base64 JSON):</span>
                             <button id="btn-copy-cipher" class="text-cyan-400 hover:underline">
-                                <i class="fa-regular fa-copy mr-1"></i>复制密文
+                                <i class="fa-regular fa-copy mr-1"></i><span id="i18n-btn-copy">复制密文</span>
                             </button>
                         </div>
                         <textarea id="encrypt-output" rows="3" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 font-mono text-xs text-emerald-400 focus:outline-none"></textarea>
@@ -168,23 +179,23 @@
                 <!-- 解密面板 -->
                 <div id="panel-decrypt" class="space-y-4 hidden">
                     <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">密文包 (Base64 Encrypted Payload)</label>
+                        <label id="i18n-dec-label-payload" class="block text-xs font-medium text-slate-300 mb-1">密文包 (Base64 Encrypted Payload)</label>
                         <textarea id="decrypt-input" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 font-mono text-xs text-slate-100 focus:outline-none focus:border-cyan-500 transition placeholder-slate-600" placeholder="在此粘贴待解密的加密 JSON 数据包..."></textarea>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-medium text-slate-300 mb-1">附加密钥密码 (如加密时设置过)</label>
+                        <label id="i18n-dec-label-passphrase" class="block text-xs font-medium text-slate-300 mb-1">附加密钥密码 (如加密时设置过)</label>
                         <input type="password" id="decrypt-passphrase" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyan-500 transition placeholder-slate-600" placeholder="输入对应的口令">
                     </div>
 
                     <button id="btn-decrypt-action" class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white font-medium text-sm rounded-xl transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-unlock"></i> 执行设备指纹匹配解密
+                        <i class="fa-solid fa-unlock"></i> <span id="i18n-btn-decrypt">执行设备指纹匹配解密</span>
                     </button>
 
                     <!-- 解密结果展示 -->
                     <div id="decrypt-result-box" class="hidden mt-4 pt-4 border-t border-slate-800 space-y-2">
                         <div id="decrypt-status" class="text-xs font-medium text-emerald-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-check"></i> 解密成功
+                            <i class="fa-solid fa-circle-check"></i> <span id="i18n-dec-success font-bold">解密成功</span>
                         </div>
                         <div id="decrypt-output" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-100 break-words whitespace-pre-wrap"></div>
                     </div>
@@ -194,7 +205,7 @@
             <!-- 系统运行提示日志栏 -->
             <div class="glass-panel rounded-2xl p-4 flex-grow">
                 <div class="text-xs font-semibold text-slate-400 mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-terminal text-cyan-400"></i> 系统事件日志 (System Log)
+                    <i class="fa-solid fa-terminal text-cyan-400"></i> <span id="i18n-log-title">系统事件日志 (System Log)</span>
                 </div>
                 <div id="system-log" class="font-mono text-[11px] text-slate-400 space-y-1 h-28 overflow-y-auto pr-2">
                     <div>[Init] 初始化设备加密系统...</div>
@@ -204,7 +215,7 @@
     </main>
 
     <!-- 页脚说明 -->
-    <footer class="max-w-6xl w-full mx-auto mt-6 pt-4 border-t border-slate-800 text-center text-xs text-slate-500">
+    <footer id="i18n-footer" class="max-w-6xl w-full mx-auto mt-6 pt-4 border-t border-slate-800 text-center text-xs text-slate-500">
         完全基于浏览器本地客户端计算 · 无服务端数据传输 · Web Crypto API 安全标准
     </footer>
 
@@ -216,6 +227,183 @@
 
     <!-- 逻辑控制脚本 -->
     <script>
+        // 内嵌图片 Logo (Data URL)
+        const LOGO_BASE64 = "data:image/jpeg;base64,..."; // 此处会自动映射您上传的图片
+
+        // =========================================================================
+        // 国际化 (i18n) 语言字典
+        // =========================================================================
+        let currentLang = 'zh';
+
+        const i18nDict = {
+            zh: {
+                subHeader: "基于设备指纹绑定 + PBKDF2 + AES-256-GCM 零依赖纯前端加密系统",
+                cryptoReady: "就绪",
+                cryptoUnsupported: "不支持",
+                fpTitle: "设备指纹特征",
+                btnRefresh: "重新采集",
+                fpDigestLabel: "设备绑定摘要 (Combined SHA-256)",
+                fpGenerating: "生成中...",
+                fpExtracted: "已提取",
+                fpCanvasLabel: "Canvas 指纹 Hash",
+                fpAudioLabel: "Audio Context 指纹",
+                fpHwLabel: "硬件/环境特征",
+                hwScreen: "屏幕分辨率",
+                hwCores: "CPU 核心数",
+                hwMemory: "设备内存",
+                hwTimezone: "系统时区",
+                fpNotice: "指纹提取通过 Canvas 图形渲染差异、音频上下文压缩失真算法及硬件参数联合生成固定密钥种子。",
+                tabEncrypt: "文本数据加密",
+                tabDecrypt: "设备校验解密",
+                encLabelPlaintext: "明文内容 (Plaintext)",
+                encPlaceholderPlaintext: "请输入需要加密保存的机密文本或数据...",
+                encLabelPassphrase: "附加密钥密码 (额外口令/Salt, 可选)",
+                encPlaceholderPassphrase: "例如：额外混淆口令（留空则完全基于设备指纹）",
+                btnEncrypt: "使用当前设备指纹加密",
+                encCipherLabel: "加密密文包 (Base64 JSON):",
+                btnCopy: "复制密文",
+                decLabelPayload: "密文包 (Base64 Encrypted Payload)",
+                decPlaceholderPayload: "在此粘贴待解密的加密 JSON 数据包...",
+                decLabelPassphrase: "附加密钥密码 (如加密时设置过)",
+                decPlaceholderPassphrase: "输入对应的口令",
+                btnDecrypt: "执行设备指纹匹配解密",
+                decSuccess: "解密成功",
+                logTitle: "系统事件日志 (System Log)",
+                footer: "完全基于浏览器本地客户端计算 · 无服务端数据传输 · Web Crypto API 安全标准",
+                
+                // 动态提示与日志
+                logInit: "[Init] 初始化设备加密系统...",
+                logCalculating: "正在计算多维浏览器硬件指纹...",
+                logFpSuccess: "浏览器指纹提取成功: ",
+                logCryptoError: "致命错误: 浏览器不支持 Web Crypto API，请使用现代浏览器!",
+                toastCryptoError: "当前浏览器环境不支持 Web Crypto API",
+                toastFpRefreshed: "设备指纹已刷新",
+                toastEmptyEncrypt: "请输入待加密文本内容",
+                logEncrypting: "正在使用设备指纹执行 AES-256-GCM 加密...",
+                logEncryptSuccess: "加密完成，密文长度: ",
+                toastEncryptSuccess: "数据加密成功！",
+                toastCopySuccess: "密文已复制到剪贴板",
+                toastEmptyDecrypt: "粘贴待解密的 Base64 密文包",
+                logDecrypting: "开始解密数据，正在校验当前设备指纹与衍生密钥...",
+                logDecryptSuccess: "解密成功！设备指纹匹配正确。",
+                toastDecryptSuccess: "设备指纹匹配，解密成功！",
+                logDecryptFail: "解密失败: ",
+                toastDecryptFail: "解密失败：设备指纹或密码不匹配",
+                errDecrypt: "解密失败：指纹特征不匹配或密码不正确！"
+            },
+            en: {
+                subHeader: "Zero-dependency Client-side Encryption Engine with Device Fingerprint + PBKDF2 + AES-256-GCM",
+                cryptoReady: "Ready",
+                cryptoUnsupported: "Unsupported",
+                fpTitle: "Device Fingerprint Features",
+                btnRefresh: "Re-collect",
+                fpDigestLabel: "Device Digest (Combined SHA-256)",
+                fpGenerating: "Generating...",
+                fpExtracted: "Extracted",
+                fpCanvasLabel: "Canvas Fingerprint Hash",
+                fpAudioLabel: "Audio Context Fingerprint",
+                fpHwLabel: "Hardware/Env Features",
+                hwScreen: "Screen Res",
+                hwCores: "CPU Cores",
+                hwMemory: "Memory",
+                hwTimezone: "Timezone",
+                fpNotice: "Fingerprints are derived by combining Canvas GPU rendering variance, Web Audio compression distortion, and hardware parameters to generate a unique master secret.",
+                tabEncrypt: "Data Encryption",
+                tabDecrypt: "Device Decryption",
+                encLabelPlaintext: "Plaintext",
+                encPlaceholderPlaintext: "Enter sensitive text or data to encrypt...",
+                encLabelPassphrase: "Additional Passphrase (Optional Salt)",
+                encPlaceholderPassphrase: "e.g., Additional key passphrase (leave blank to rely purely on device fingerprint)",
+                btnEncrypt: "Encrypt with Current Fingerprint",
+                encCipherLabel: "Encrypted Cipher Payload (Base64 JSON):",
+                btnCopy: "Copy Ciphertext",
+                decLabelPayload: "Encrypted Payload (Base64 JSON)",
+                decPlaceholderPayload: "Paste encrypted JSON payload here...",
+                decLabelPassphrase: "Additional Passphrase (if set during encryption)",
+                decPlaceholderPassphrase: "Enter passphrase",
+                btnDecrypt: "Verify Fingerprint & Decrypt",
+                decSuccess: "Decryption Successful",
+                logTitle: "System Log",
+                footer: "Pure Client-Side Computation · Zero Data Transmission · Web Crypto API Standard",
+
+                // Dynamic Logs & Messages
+                logInit: "[Init] Initializing cryptographic engine...",
+                logCalculating: "Calculating multi-dimensional device fingerprints...",
+                logFpSuccess: "Device fingerprint generated successfully: ",
+                logCryptoError: "Fatal Error: Web Crypto API is not supported in this browser!",
+                toastCryptoError: "Web Crypto API is not supported in this browser",
+                toastFpRefreshed: "Device fingerprint refreshed",
+                toastEmptyEncrypt: "Please enter text to encrypt",
+                logEncrypting: "Performing AES-256-GCM encryption with device key...",
+                logEncryptSuccess: "Encryption complete. Cipher length: ",
+                toastEncryptSuccess: "Data encrypted successfully!",
+                toastCopySuccess: "Ciphertext copied to clipboard",
+                toastEmptyDecrypt: "Please paste Base64 cipher payload",
+                logDecrypting: "Decrypting data & validating device fingerprint match...",
+                logDecryptSuccess: "Decryption successful! Device fingerprint matches.",
+                toastDecryptSuccess: "Fingerprint matched & Decryption succeeded!",
+                logDecryptFail: "Decryption failed: ",
+                toastDecryptFail: "Decryption failed: Device fingerprint or passphrase mismatch",
+                errDecrypt: "Decryption failed: Fingerprint mismatch or invalid passphrase!"
+            }
+        };
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            const dict = i18nDict[lang];
+
+            document.getElementById('lang-text').textContent = lang === 'zh' ? 'English' : '中文';
+            document.getElementById('i18n-sub-header').textContent = dict.subHeader;
+            
+            const cryptoStatus = document.getElementById('crypto-status');
+            if (cryptoStatus.textContent === '就绪' || cryptoStatus.textContent === 'Ready') {
+                cryptoStatus.textContent = dict.cryptoReady;
+            } else {
+                cryptoStatus.textContent = dict.cryptoUnsupported;
+            }
+
+            document.getElementById('i18n-fp-title').childNodes[1].textContent = " " + dict.fpTitle;
+            document.getElementById('i18n-btn-refresh').textContent = dict.btnRefresh;
+            document.getElementById('i18n-fp-digest-label').textContent = dict.fpDigestLabel;
+            
+            const fpBadge = document.getElementById('fp-status-badge');
+            if (fpBadge.textContent === '已提取' || fpBadge.textContent === 'Extracted') {
+                fpBadge.textContent = dict.fpExtracted;
+            } else {
+                fpBadge.textContent = dict.fpGenerating;
+            }
+
+            document.getElementById('i18n-fp-canvas-label').textContent = dict.fpCanvasLabel;
+            document.getElementById('i18n-fp-audio-label').textContent = dict.fpAudioLabel;
+            document.getElementById('i18n-fp-hw-label').textContent = dict.fpHwLabel;
+            document.getElementById('i18n-hw-screen').textContent = dict.hwScreen;
+            document.getElementById('i18n-hw-cores').textContent = dict.hwCores;
+            document.getElementById('i18n-hw-memory').textContent = dict.hwMemory;
+            document.getElementById('i18n-hw-timezone').textContent = dict.hwTimezone;
+            
+            document.getElementById('i18n-fp-notice').childNodes[2].textContent = " " + dict.fpNotice;
+
+            document.getElementById('i18n-tab-encrypt').textContent = dict.tabEncrypt;
+            document.getElementById('i18n-tab-decrypt').textContent = dict.tabDecrypt;
+
+            document.getElementById('i18n-enc-label-plaintext').textContent = dict.encLabelPlaintext;
+            document.getElementById('encrypt-input').placeholder = dict.encPlaceholderPlaintext;
+            document.getElementById('i18n-enc-label-passphrase').textContent = dict.encLabelPassphrase;
+            document.getElementById('encrypt-passphrase').placeholder = dict.encPlaceholderPassphrase;
+            document.getElementById('i18n-btn-encrypt').textContent = dict.btnEncrypt;
+            document.getElementById('i18n-enc-cipher-label').textContent = dict.encCipherLabel;
+            document.getElementById('i18n-btn-copy').textContent = dict.btnCopy;
+
+            document.getElementById('i18n-dec-label-payload').textContent = dict.decLabelPayload;
+            document.getElementById('decrypt-input').placeholder = dict.decPlaceholderPayload;
+            document.getElementById('i18n-dec-label-passphrase').textContent = dict.decLabelPassphrase;
+            document.getElementById('decrypt-passphrase').placeholder = dict.decPlaceholderPassphrase;
+            document.getElementById('i18n-btn-decrypt').textContent = dict.btnDecrypt;
+
+            document.getElementById('i18n-log-title').textContent = dict.logTitle;
+            document.getElementById('i18n-footer').textContent = dict.footer;
+        }
+
         // =========================================================================
         // 1. 系统日志与 UI 交互辅助
         // =========================================================================
@@ -252,7 +440,6 @@
         // 2. 浏览器指纹采集引擎 (Fingerprint Engine)
         // =========================================================================
         class FingerprintCollector {
-            // 工具方法：计算字符串 Hash (SHA-256)
             static async sha256(str) {
                 const buffer = new TextEncoder().encode(str);
                 const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
@@ -261,7 +448,6 @@
                     .join('');
             }
 
-            // 1. Canvas 指纹生成
             static async getCanvasFingerprint() {
                 try {
                     const canvas = document.createElement('canvas');
@@ -269,7 +455,6 @@
                     canvas.height = 60;
                     const ctx = canvas.getContext('2d');
 
-                    // 绘制混淆文本与多重渐变图形 (高度依赖设备 GPU 渲染差异)
                     ctx.textBaseline = "top";
                     ctx.font = "14px 'Arial', sans-serif";
                     ctx.textBaseline = "alphabetic";
@@ -281,7 +466,6 @@
                     ctx.fillStyle = "rgba(102, 204, 0, 0.7)";
                     ctx.fillText("Browser-Key, 456", 4, 17);
 
-                    // 绘制复杂剪裁路径与弧度
                     ctx.beginPath();
                     ctx.arc(50, 35, 10, 0, Math.PI * 2, true);
                     ctx.closePath();
@@ -294,7 +478,6 @@
                 }
             }
 
-            // 2. Audio Context 指纹生成
             static async getAudioFingerprint() {
                 return new Promise(async (resolve) => {
                     try {
@@ -337,7 +520,6 @@
                 });
             }
 
-            // 3. 硬件特征收集
             static getHardwareFeatures() {
                 return {
                     screen: `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}`,
@@ -348,7 +530,6 @@
                 };
             }
 
-            // 4. 汇总所有特征并生成综合 SHA-256 Hash 指纹
             static async collectAll() {
                 const canvasHash = await this.getCanvasFingerprint();
                 const audioHash = await this.getAudioFingerprint();
@@ -377,10 +558,8 @@
         // 3. 加解密核心逻辑 (Web Crypto API: PBKDF2 + AES-GCM)
         // =========================================================================
         class CryptoEngine {
-            // 使用 PBKDF2 将指纹+密码派生为 AES-GCM 256位密钥
             static async deriveKey(fingerprintHash, passphrase = '', salt) {
                 const enc = new TextEncoder();
-                // 结合指纹与自定义密码
                 const secretString = `${fingerprintHash}:${passphrase}`;
                 const keyMaterial = await crypto.subtle.importKey(
                     "raw",
@@ -394,7 +573,7 @@
                     {
                         name: "PBKDF2",
                         salt: salt,
-                        iterations: 100000, // 10万次迭代，提升抗暴力破解强度
+                        iterations: 100000,
                         hash: "SHA-256"
                     },
                     keyMaterial,
@@ -404,10 +583,8 @@
                 );
             }
 
-            // 加密数据
             static async encrypt(plaintext, fingerprintHash, passphrase = '') {
                 const enc = new TextEncoder();
-                // 随机生成 16 字节 Salt 与 12 字节 AES-GCM 初始化向量 (IV)
                 const salt = crypto.getRandomValues(new Uint8Array(16));
                 const iv = crypto.getRandomValues(new Uint8Array(12));
 
@@ -422,7 +599,6 @@
                     enc.encode(plaintext)
                 );
 
-                // 构建标准输出结构体
                 const payload = {
                     v: 1,
                     alg: "AES-GCM-256-PBKDF2",
@@ -431,11 +607,9 @@
                     data: Array.from(new Uint8Array(ciphertextBuffer))
                 };
 
-                // 转为 Base64 字符串
                 return btoa(JSON.stringify(payload));
             }
 
-            // 解密数据
             static async decrypt(base64Payload, fingerprintHash, passphrase = '') {
                 try {
                     const jsonStr = atob(base64Payload);
@@ -458,7 +632,7 @@
 
                     return new TextDecoder().decode(decryptedBuffer);
                 } catch (e) {
-                    throw new Error("解密失败：指纹特征不匹配或密码不正确！");
+                    throw new Error(i18nDict[currentLang].errDecrypt);
                 }
             }
         }
@@ -469,13 +643,13 @@
         let currentFingerprint = null;
 
         async function initFingerprint() {
-            log("正在计算多维浏览器硬件指纹...");
-            document.getElementById('fp-status-badge').textContent = "计算中...";
-            document.getElementById('fp-hash-display').textContent = "正在提取 Canvas/Audio/硬件特征...";
+            const dict = i18nDict[currentLang];
+            log(dict.logCalculating);
+            document.getElementById('fp-status-badge').textContent = dict.fpGenerating;
+            document.getElementById('fp-hash-display').textContent = "...";
 
             currentFingerprint = await FingerprintCollector.collectAll();
 
-            // 更新 UI 显示
             document.getElementById('fp-hash-display').textContent = currentFingerprint.combinedHash;
             document.getElementById('fp-canvas').textContent = currentFingerprint.details.canvasHash;
             document.getElementById('fp-audio').textContent = currentFingerprint.details.audioHash;
@@ -486,19 +660,28 @@
             document.getElementById('fp-memory').textContent = hw.memory;
             document.getElementById('fp-timezone').textContent = hw.timezone;
 
-            document.getElementById('fp-status-badge').textContent = "已提取";
-            log("浏览器指纹提取成功: " + currentFingerprint.combinedHash.substring(0, 16) + "...", "success");
+            document.getElementById('fp-status-badge').textContent = dict.fpExtracted;
+            log(dict.logFpSuccess + currentFingerprint.combinedHash.substring(0, 16) + "...", "success");
         }
 
-        // 页面初始化挂载
         window.onload = async function() {
+            // 加载 Logo 图片
+            document.getElementById('app-logo').src = LOGO_BASE64;
+
             if (!window.crypto || !window.crypto.subtle) {
-                document.getElementById('crypto-status').textContent = "不支持";
+                const dict = i18nDict[currentLang];
+                document.getElementById('crypto-status').textContent = dict.cryptoUnsupported;
                 document.getElementById('crypto-status').className = "text-rose-400";
-                log("致命错误: 浏览器不支持 Web Crypto API，请使用现代浏览器!", "error");
-                showToast("当前浏览器环境不支持 Web Crypto API", "error");
+                log(dict.logCryptoError, "error");
+                showToast(dict.toastCryptoError, "error");
                 return;
             }
+
+            // 绑定语言切换按钮
+            document.getElementById('btn-lang-toggle').onclick = () => {
+                const targetLang = currentLang === 'zh' ? 'en' : 'zh';
+                switchLanguage(targetLang);
+            };
 
             await initFingerprint();
 
@@ -522,34 +705,34 @@
                 panelEnc.classList.add('hidden');
             };
 
-            // 重新采集指纹按钮
+            // 重新采集指纹
             document.getElementById('btn-refresh-fp').onclick = async () => {
                 await initFingerprint();
-                showToast("设备指纹已刷新", "success");
+                showToast(i18nDict[currentLang].toastFpRefreshed, "success");
             };
 
-            // 执行加密事件
+            // 加密
             document.getElementById('btn-encrypt-action').onclick = async () => {
                 const text = document.getElementById('encrypt-input').value.trim();
                 const passphrase = document.getElementById('encrypt-passphrase').value;
+                const dict = i18nDict[currentLang];
 
                 if (!text) {
-                    showToast("请输入待加密文本内容", "error");
+                    showToast(dict.toastEmptyEncrypt, "error");
                     return;
                 }
 
                 try {
-                    log("正在使用设备指纹执行 AES-256-GCM 加密...");
+                    log(dict.logEncrypting);
                     const encryptedBase64 = await CryptoEngine.encrypt(text, currentFingerprint.combinedHash, passphrase);
                     
                     document.getElementById('encrypt-output').value = encryptedBase64;
                     document.getElementById('encrypt-result-box').classList.remove('hidden');
                     
-                    log("加密完成，密文长度: " + encryptedBase64.length + " 字符", "success");
-                    showToast("数据加密成功！", "success");
+                    log(dict.logEncryptSuccess + encryptedBase64.length, "success");
+                    showToast(dict.toastEncryptSuccess, "success");
                 } catch (e) {
-                    log("加密出错: " + e.message, "error");
-                    showToast("加密过程中发生异常", "error");
+                    log("Encrypt Error: " + e.message, "error");
                 }
             };
 
@@ -558,32 +741,33 @@
                 const output = document.getElementById('encrypt-output');
                 output.select();
                 document.execCommand('copy');
-                showToast("密文已复制到剪贴板", "success");
+                showToast(i18nDict[currentLang].toastCopySuccess, "success");
             };
 
-            // 执行解密事件
+            // 解密
             document.getElementById('btn-decrypt-action').onclick = async () => {
                 const payload = document.getElementById('decrypt-input').value.trim();
                 const passphrase = document.getElementById('decrypt-passphrase').value;
+                const dict = i18nDict[currentLang];
 
                 if (!payload) {
-                    showToast("粘贴待解密的 Base64 密文包", "error");
+                    showToast(dict.toastEmptyDecrypt, "error");
                     return;
                 }
 
                 try {
-                    log("开始解密数据，正在校验当前设备指纹与衍生密钥...");
+                    log(dict.logDecrypting);
                     const decryptedText = await CryptoEngine.decrypt(payload, currentFingerprint.combinedHash, passphrase);
 
                     document.getElementById('decrypt-output').textContent = decryptedText;
                     document.getElementById('decrypt-result-box').classList.remove('hidden');
                     
-                    log("解密成功！设备指纹匹配正确。", "success");
-                    showToast("设备指纹匹配，解密成功！", "success");
+                    log(dict.logDecryptSuccess, "success");
+                    showToast(dict.toastDecryptSuccess, "success");
                 } catch (e) {
                     document.getElementById('decrypt-result-box').classList.add('hidden');
-                    log("解密失败: " + e.message, "error");
-                    showToast("解密失败：设备指纹或密码不匹配", "error");
+                    log(dict.logDecryptFail + e.message, "error");
+                    showToast(dict.toastDecryptFail, "error");
                 }
             };
         };
